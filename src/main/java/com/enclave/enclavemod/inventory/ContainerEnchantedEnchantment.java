@@ -200,6 +200,8 @@ public class ContainerEnchantedEnchantment extends Container {
                         }
                     }
 
+                    if (power > 10) power = 10;
+
                     this.enchantmentsAmount = 0;
 
                     ArrayList<EnchantmentData> availableEnchantment = new ArrayList<>();
