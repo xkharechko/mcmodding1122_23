@@ -207,7 +207,7 @@ public class ContainerEnchantedEnchantment extends Container {
                     ArrayList<EnchantmentData> availableEnchantment = new ArrayList<>();
 
                     for (Enchantment enchantment : Enchantment.REGISTRY) {
-                        if (enchantment == null) break;
+                        if (enchantment == null) continue;
 
                         if (enchantment.canApplyAtEnchantingTable(itemstack)) {
                             availableEnchantment.add(new EnchantmentData(enchantment, (int)power));

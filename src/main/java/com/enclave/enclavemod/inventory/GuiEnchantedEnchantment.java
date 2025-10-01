@@ -3,6 +3,7 @@ package com.enclave.enclavemod.inventory;
 import com.enclave.enclavemod.registers.ItemsRegistry;
 import com.google.common.collect.Lists;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.model.ModelBook;
@@ -32,7 +33,7 @@ import java.util.Random;
 @SideOnly(Side.CLIENT)
 public class GuiEnchantedEnchantment extends GuiContainer
 {
-    private static final ResourceLocation ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE = new ResourceLocation("enclavemod:textures/gui/container/enchanted_enchanting_table.png");
+    private static final ResourceLocation ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE = new ResourceLocation("enclavemod:textures/gui/container/enchanted_enchanting_table_extended.png");
     private static final ResourceLocation ENCHANTMENT_TABLE_BOOK_TEXTURE = new ResourceLocation("textures/entity/enchanting_table_book.png");
     private static final ModelBook MODEL_BOOK = new ModelBook();
     private final InventoryPlayer playerInventory;
@@ -54,12 +55,16 @@ public class GuiEnchantedEnchantment extends GuiContainer
         this.playerInventory = inventory;
         this.container = (ContainerEnchantedEnchantment)this.inventorySlots;
         this.nameable = nameable;
+        this.ySize = 166;
+        this.xSize = 308;
     }
 
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         this.fontRenderer.drawString(this.nameable.getDisplayName().getUnformattedText(), 8, 5, 4210752);
         this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
+        this.fontRenderer.drawString((this.container.worldClue[0] > 0 ? "Enchantment level: " + this.container.worldClue[0] : "Select an item to enchant"),
+                                     (this.container.worldClue[0] > 0 ? 75 : 67), 48, 4210752);
     }
 
     public void updateScreen()
@@ -79,7 +84,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
         for (int k = 0; k < 20; ++k)
         {
-            int l = mouseX - (i + 60);
+            int l = mouseX - (i + 174);
             int i1 = mouseY - (j + 14 + 19 * k);
 
             if (l >= 0 && i1 >= 0 && l < 108 && i1 < 19 && this.container.enchantItem(this.mc.player, k))
@@ -98,13 +103,13 @@ public class GuiEnchantedEnchantment extends GuiContainer
         this.mc.getTextureManager().bindTexture(ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
-        this.drawTexturedModalRect(i, j, 0, 0, this.xSize + 18, this.ySize);
+        drawModalRectWithCustomSizedTexture(i, j, 0, 0, this.xSize, this.ySize, 392.0F, 256.0F);
         GlStateManager.pushMatrix();
         GlStateManager.matrixMode(5889);
         GlStateManager.pushMatrix();
         GlStateManager.loadIdentity();
         ScaledResolution scaledresolution = new ScaledResolution(this.mc);
-        GlStateManager.viewport((scaledresolution.getScaledWidth() - 320) / 2 * scaledresolution.getScaleFactor(), (scaledresolution.getScaledHeight() - 240) / 2 * scaledresolution.getScaleFactor(), 320 * scaledresolution.getScaleFactor(), 240 * scaledresolution.getScaleFactor());
+        GlStateManager.viewport((scaledresolution.getScaledWidth() - 453) / 2 * scaledresolution.getScaleFactor(), (scaledresolution.getScaledHeight() - 240) / 2 * scaledresolution.getScaleFactor(), 320 * scaledresolution.getScaleFactor(), 240 * scaledresolution.getScaleFactor());
         GlStateManager.translate(-0.34F, 0.23F, 0.0F);
         Project.gluPerspective(90.0F, 1.3333334F, 9.0F, 80.0F);
         float f = 1.0F;
@@ -167,13 +172,13 @@ public class GuiEnchantedEnchantment extends GuiContainer
             enchantmentsAmount++;
         }
 
-        for (int l = 0; l < 3 + (enchantmentsAmount >= 3 ? enchantmentsAmount - 3 : 0); ++l)
+        for (int l = 0; l < 7 + (enchantmentsAmount >= 7 ? enchantmentsAmount - 7 : 0); ++l)
         {
-            int i1 = i + 60;
+            int i1 = i + 174;
             int j1 = i1 + 20;
             this.zLevel = 0.0F;
             this.mc.getTextureManager().bindTexture(ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE);
-            int k1 = this.container.enchantLevels[l];
+            int k1 = this.container.worldClue[l];
             int gemtype;
 
             if (l < enchantmentsAmount/10F) {
@@ -188,9 +193,9 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            if (k1 == 0)
+            if (k1 <= 0)
             {
-                this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 185, 108, 19);
+                drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 185, 108, 19, 392.0F, 256.0F);
             }
             else
             {
@@ -201,35 +206,35 @@ public class GuiEnchantedEnchantment extends GuiContainer
                 int i2 = 6839882;
 
                 if (this.container.enchantClue[l] == -1) {
-                    this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 185, 108, 19);
-                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16);
+                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 185, 108, 19, 392.0F, 256.0F);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
-                    i2 = 4226832;
+                    i2 = 6029404;
                 } else if ((gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance()) && l < enchantmentsAmount/10F)
                         || (gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance()) && l < enchantmentsAmount/3.34F)
                         || (gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance()) && l < enchantmentsAmount/1.43F)
                         || gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()) || this.mc.player.capabilities.isCreativeMode) {
-                    int j2 = mouseX - (i + 60);
+                    int j2 = mouseX - (i + 174);
                     int k2 = mouseY - (j + 14 + 19 * l);
 
                     if (j2 >= 0 && k2 >= 0 && j2 < 108 && k2 < 19)
                     {
-                        this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 204, 108, 19);
+                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 204, 108, 19, 392.0F, 256.0F);
                         i2 = 16777088;
                     }
                     else
                     {
-                        this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 166, 108, 19);
+                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 166, 108, 19, 392.0F, 256.0F);
                     }
 
-                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 223, 16, 16);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, i2);
-                    i2 = 8453920;
+                    i2 = 11141290;
                 } else {
-                    this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 185, 108, 19);
-                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16);
+                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 185, 108, 19, 392.0F, 256.0F);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
-                    i2 = 4226832;
+                    i2 = 6029404;
                 }
 
                 fontrenderer = this.mc.fontRenderer;
@@ -259,7 +264,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
             Enchantment enchantment = Enchantment.getEnchantmentByID(this.container.enchantClue[j]);
             int l = this.container.worldClue[j];
 
-            if (this.isPointInRegion(60, 14 + 19 * j, 108, 17, mouseX, mouseY) && k > 0)
+            if (this.isPointInRegion(174, 14 + 19 * j, 108, 17, mouseX, mouseY) && k > 0)
             {
                 List<String> list = Lists.<String>newArrayList();
                 list.add("" + TextFormatting.WHITE + TextFormatting.ITALIC + I18n.format(enchantment == null ? "" : enchantment.getTranslatedName(l)));
