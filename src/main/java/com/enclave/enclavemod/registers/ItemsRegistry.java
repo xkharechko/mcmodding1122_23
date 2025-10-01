@@ -68,7 +68,7 @@ public class ItemsRegistry {
 
     @SubscribeEvent
     public static void onRegistryItem(RegistryEvent.Register<Item> e) {
-        e.getRegistry().register(new ItemMysterious().setCreativeTab(CreativeTabs.MISC));
+        e.getRegistry().register(new ItemMysterious("mysterious").setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemBurger("burger", 3, 20, true).setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemToolAxe("axe", ModMaterials.TOOL_MATERIAL).setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemToolHoe("hoe", ModMaterials.TOOL_MATERIAL).setCreativeTab(CreativeTabs.MISC));

@@ -250,7 +250,7 @@ public class ContainerEnchantedEnchantment extends Container {
         int i = id + 1;
         float n = 1;
 
-        if ((itemstack1.isEmpty() || itemstack1.getCount() < i) && !playerIn.capabilities.isCreativeMode)
+        if ((itemstack1.isEmpty()) && !playerIn.capabilities.isCreativeMode)
         {
             return false;
         }

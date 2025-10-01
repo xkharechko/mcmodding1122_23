@@ -24,9 +24,11 @@ import net.minecraft.world.IWorldNameable;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.util.glu.Project;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -46,8 +48,13 @@ public class GuiEnchantedEnchantment extends GuiContainer
     public float flipA;
     public float open;
     public float oOpen;
+    public boolean needsScroll = false;
+    public boolean needsSlider = false;
+    public int scrollPos = 0;
+    public int sliderPos = 0;
     private ItemStack last = ItemStack.EMPTY;
     private final IWorldNameable nameable;
+    private final List<String> generatedNames = new ArrayList<>();
 
     public GuiEnchantedEnchantment(InventoryPlayer inventory, World worldIn, IWorldNameable nameable)
     {
@@ -73,19 +80,18 @@ public class GuiEnchantedEnchantment extends GuiContainer
         this.tickBook();
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
 
-        for (int k = 0; k < 20; ++k)
-        {
+        for (int k = scrollPos; k < 20; ++k) {
+            if (k - scrollPos > 6) {
+                break;
+            }
             int l = mouseX - (i + 174);
-            int i1 = mouseY - (j + 14 + 19 * k);
+            int i1 = mouseY - (j + 14 + 19 * (k - scrollPos));
 
             if (l >= 0 && i1 >= 0 && l < 108 && i1 < 19 && this.container.enchantItem(this.mc.player, k))
             {
@@ -94,9 +100,20 @@ public class GuiEnchantedEnchantment extends GuiContainer
         }
     }
 
-    /**
-     * Draws the background layer of this container (behind the items).
-     */
+    @Override
+    public void handleMouseInput() throws IOException {
+        super.handleMouseInput();
+        int d = 0;
+        d = Mouse.getEventDWheel();
+        if (d != 0 && needsScroll) {
+            int dir = d > 0 ? -1 : 1;
+            scrollPos += dir;
+        }
+        if (scrollPos < 0) {
+            scrollPos = 0;
+        }
+    }
+
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
     {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -130,7 +147,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
         float f3 = this.oFlip + (this.flip - this.oFlip) * partialTicks + 0.25F;
         float f4 = this.oFlip + (this.flip - this.oFlip) * partialTicks + 0.75F;
         f3 = (f3 - (float) MathHelper.fastFloor((double)f3)) * 1.6F - 0.3F;
-        f4 = (f4 - (float)MathHelper.fastFloor((double)f4)) * 1.6F - 0.3F;
+        f4 = (f4 - (float) MathHelper.fastFloor((double)f4)) * 1.6F - 0.3F;
 
         if (f3 < 0.0F)
         {
@@ -166,14 +183,30 @@ public class GuiEnchantedEnchantment extends GuiContainer
         EnchantmentNameParts.getInstance().reseedRandomGenerator((long)this.container.xpSeed);
         ItemStack gem = this.container.getCurrentGem();
         int enchantmentsAmount = 0;
+        float scrollMultiplier;
 
         for (int n : this.container.enchantClue) {
             if (n == -1) break;
             enchantmentsAmount++;
         }
 
+        scrollMultiplier = 118.00F / (enchantmentsAmount - 7 > 0 ? enchantmentsAmount - 7 : 1);
+
+        if (scrollPos > enchantmentsAmount - 7) {
+            scrollPos = (Math.max(enchantmentsAmount - 7, 0));
+        }
+
+        boolean isVisible;
+        int reduceL = 0;
+
         for (int l = 0; l < 7 + (enchantmentsAmount >= 7 ? enchantmentsAmount - 7 : 0); ++l)
         {
+            isVisible = 7 - l + scrollPos <= 7 && 7 - l + scrollPos > 0;
+            if(!isVisible) {
+                reduceL--;
+                continue;
+            }
+
             int i1 = i + 174;
             int j1 = i1 + 20;
             this.zLevel = 0.0F;
@@ -195,51 +228,78 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
             if (k1 <= 0)
             {
-                drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 185, 108, 19, 392.0F, 256.0F);
+                drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
             }
             else
             {
                 String s = "" + k1;
                 int l1 = 86 - this.fontRenderer.getStringWidth(s);
-                String s1 = EnchantmentNameParts.getInstance().generateNewRandomName(this.fontRenderer, l1);
+
+                int globalIndex = l + scrollPos;
+
+                while (generatedNames.size() <= globalIndex) {
+                    generatedNames.add(null);
+                }
+
+                if (generatedNames.get(globalIndex) == null) {
+                    generatedNames.set(globalIndex, EnchantmentNameParts.getInstance().generateNewRandomName(this.fontRenderer, l1));
+                }
+
                 FontRenderer fontrenderer = this.mc.standardGalacticFontRenderer;
                 int i2 = 6839882;
 
                 if (this.container.enchantClue[l] == -1) {
-                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 185, 108, 19, 392.0F, 256.0F);
-                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
-                    fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
+                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
+                    fontrenderer.drawSplitString(generatedNames.get(l), j1, j + 16 + 19 * (l + reduceL), l1, (i2 & 16711422) >> 1);
                     i2 = 6029404;
                 } else if ((gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance()) && l < enchantmentsAmount * 0.1F)
                         || (gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance()) && l < enchantmentsAmount * 0.4F)
                         || (gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance()) && l < enchantmentsAmount * 0.7F)
                         || gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()) || this.mc.player.capabilities.isCreativeMode) {
                     int j2 = mouseX - (i + 174);
-                    int k2 = mouseY - (j + 14 + 19 * l);
+                    int k2 = mouseY - (j + 14 + 19 * (l + reduceL));
 
                     if (j2 >= 0 && k2 >= 0 && j2 < 108 && k2 < 19)
                     {
-                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 204, 108, 19, 392.0F, 256.0F);
+                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 204, 108, 19, 392.0F, 256.0F);
                         i2 = 16777088;
                     }
                     else
                     {
-                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 166, 108, 19, 392.0F, 256.0F);
+                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 166, 108, 19, 392.0F, 256.0F);
                     }
 
-                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
-                    fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, i2);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
+                    fontrenderer.drawSplitString(generatedNames.get(l), j1, j + 16 + 19 * (l + reduceL), l1, i2);
                     i2 = 11141290;
                 } else {
-                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * l, 0, 185, 108, 19, 392.0F, 256.0F);
-                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
-                    fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
+                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
+                    fontrenderer.drawSplitString(generatedNames.get(l), j1, j + 16 + 19 * (l + reduceL), l1, (i2 & 16711422) >> 1);
                     i2 = 6029404;
                 }
 
                 fontrenderer = this.mc.fontRenderer;
-                fontrenderer.drawStringWithShadow(s, (float)(j1 + 86 - fontrenderer.getStringWidth(s)), (float)(j + 16 + 19 * l + 7), i2);
+                fontrenderer.drawStringWithShadow(s, (float)(j1 + 86 - fontrenderer.getStringWidth(s)), (float)(j + 16 + 19 * (l + reduceL) + 7), i2);
             }
+        }
+
+        needsScroll = enchantmentsAmount > 7;
+
+        this.mc.getTextureManager().bindTexture(ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+        if(needsScroll) {
+            drawModalRectWithCustomSizedTexture(i + 288, (int) (j + 14 + (scrollPos * scrollMultiplier)), 368, 0, 12, 15, 392.0F, 256.0F);
+        } else {
+            drawModalRectWithCustomSizedTexture(i + 288, j + 14, 380, 0, 12, 15, 392.0F, 256.0F);
+        }
+
+        if(needsSlider) {
+            drawModalRectWithCustomSizedTexture(i + 60 + sliderPos, j + 59, 338, 0, 15, 12, 392.0F, 256.0F);
+        } else {
+            drawModalRectWithCustomSizedTexture(i + 60, j + 59, 353, 0, 15, 12, 392.0F, 256.0F);
         }
     }
 
@@ -258,13 +318,16 @@ public class GuiEnchantedEnchantment extends GuiContainer
             enchantmentsAmount++;
         }
 
-        for (int j = 0; j < 20; ++j)
+        for (int j = scrollPos; j < 20; ++j)
         {
+            if (j - scrollPos > 6) {
+                break;
+            }
             int k = this.container.enchantLevels[j];
             Enchantment enchantment = Enchantment.getEnchantmentByID(this.container.enchantClue[j]);
             int l = this.container.worldClue[j];
 
-            if (this.isPointInRegion(174, 14 + 19 * j, 108, 17, mouseX, mouseY) && k > 0)
+            if (this.isPointInRegion(174, 14 + 19 * (j - scrollPos), 108, 17, mouseX, mouseY) && k > 0)
             {
                 List<String> list = Lists.<String>newArrayList();
                 list.add("" + TextFormatting.WHITE + TextFormatting.ITALIC + I18n.format(enchantment == null ? "" : enchantment.getTranslatedName(l)));
@@ -305,6 +368,9 @@ public class GuiEnchantedEnchantment extends GuiContainer
         if (!ItemStack.areItemStacksEqual(itemstack, this.last))
         {
             this.last = itemstack;
+            needsScroll = false;
+            scrollPos = 0;
+            generatedNames.clear();
 
             while (true)
             {
