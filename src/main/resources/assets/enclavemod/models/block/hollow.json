@@ -1,0 +1,9 @@
+{
+  "parent": "block/orientable",
+  "textures": {
+    "front": "enclavemod:blocks/hollow_front",
+    "side": "enclavemod:blocks/hollow_side",
+    "top": "enclavemod:blocks/hollow_side",
+    "bottom": "enclavemod:blocks/hollow_side"
+  }
+}

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "enclavemod",
+  "name": "Enclave Mod",
+  "description": "Learning enclave mod.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["enclave"],
+  "credits": "me",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

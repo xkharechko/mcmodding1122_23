@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "enclavemod:hollow" },
+    "facing=south": { "model": "enclavemod:hollow", "y": 180 },
+    "facing=west":  { "model": "enclavemod:hollow", "y": 270 },
+    "facing=east":  { "model": "enclavemod:hollow", "y": 90 }
+  }
+}

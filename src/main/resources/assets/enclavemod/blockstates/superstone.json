@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "upper=true": { "model": "enclavemod:superstone" },
+    "upper=false": { "model": "enclavemod:superstone_inverted" }
+  }
+}
