@@ -181,11 +181,11 @@ public class GuiEnchantedEnchantment extends GuiContainer
             int k1 = this.container.worldClue[l];
             int gemtype;
 
-            if (l < enchantmentsAmount/10F) {
+            if (l < enchantmentsAmount * 0.1F) {
                 gemtype = 0;
-            } else if (l < enchantmentsAmount/3.34F) {
+            } else if (l < enchantmentsAmount * 0.4F) {
                 gemtype = 1;
-            } else if (l < enchantmentsAmount/1.43F) {
+            } else if (l < enchantmentsAmount * 0.7F) {
                 gemtype = 2;
             } else {
                 gemtype = 3;
@@ -210,9 +210,9 @@ public class GuiEnchantedEnchantment extends GuiContainer
                     drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
                     i2 = 6029404;
-                } else if ((gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance()) && l < enchantmentsAmount/10F)
-                        || (gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance()) && l < enchantmentsAmount/3.34F)
-                        || (gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance()) && l < enchantmentsAmount/1.43F)
+                } else if ((gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance()) && l < enchantmentsAmount * 0.1F)
+                        || (gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance()) && l < enchantmentsAmount * 0.4F)
+                        || (gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance()) && l < enchantmentsAmount * 0.7F)
                         || gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()) || this.mc.player.capabilities.isCreativeMode) {
                     int j2 = mouseX - (i + 174);
                     int k2 = mouseY - (j + 14 + 19 * l);
@@ -271,22 +271,22 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
                 if(enchantment == null) java.util.Collections.addAll(list, "", TextFormatting.RED + I18n.format("forge.container.enchant.limitedEnchantability")); else
                 if (!flag) {
-                    if (j < enchantmentsAmount/10F && (!gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance())
+                    if (j < enchantmentsAmount * 0.1F && (!gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance())
                             && !gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance())
                             && !gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance())
                             && !gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()))) {
                         list.add("");
                         list.add(TextFormatting.RED + I18n.format("Requires at least common gem"));
-                    } else if (j < enchantmentsAmount/3.34F && j >= enchantmentsAmount/10F && (!gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance())
+                    } else if (j < enchantmentsAmount * 0.4F && j >= enchantmentsAmount * 0.1F && (!gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance())
                             && !gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance())
                             && !gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()))) {
                         list.add("");
                         list.add(TextFormatting.RED + I18n.format("Requires at least rare gem"));
-                    } else if (j < enchantmentsAmount/1.43F && j >= enchantmentsAmount/3.34F && (!gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance())
+                    } else if (j < enchantmentsAmount * 0.7F && j >= enchantmentsAmount * 0.4F && (!gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance())
                             && !gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()))) {
                         list.add("");
                         list.add(TextFormatting.RED + I18n.format("Requires at least mythic gem"));
-                    } else if (j >= enchantmentsAmount/1.43F && !gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance())) {
+                    } else if (j >= enchantmentsAmount * 0.7F && !gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance())) {
                         list.add("");
                         list.add(TextFormatting.RED + I18n.format("Requires legendary gem"));
                     }

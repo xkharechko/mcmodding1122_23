@@ -264,16 +264,16 @@ public class ContainerEnchantedEnchantment extends Container {
                 List<EnchantmentData> list = this.getEnchantmentList(itemstack, this.worldClue[id]);
 
                 if (itemstack1.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance())) {
-                    n = 10.0F;
+                    n = 0.1F;
                 } else if (itemstack1.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance())) {
-                    n = 3.34F;
+                    n = 0.4F;
                 } else if (itemstack1.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance())) {
-                    n = 1.43F;
+                    n = 0.7F;
                 } else if (itemstack1.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance())) {
-                    n = 1F;
+                    n = 1.0F;
                 }
 
-                if (id < 0 || id >= list.size()/n) return false;
+                if (id < 0 || id >= list.size() * n) return false;
 
                 EnchantmentData chosen = list.get(id);
 
