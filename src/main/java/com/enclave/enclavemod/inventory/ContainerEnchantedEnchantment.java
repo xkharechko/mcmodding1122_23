@@ -179,7 +179,7 @@ public class ContainerEnchantedEnchantment extends Container {
                 if (!this.worldPointer.isRemote)
                 {
                     int l = 0;
-                    float power = 0;
+                    float power = 1;
 
                     for (int j = -1; j <= 1; ++j)
                     {

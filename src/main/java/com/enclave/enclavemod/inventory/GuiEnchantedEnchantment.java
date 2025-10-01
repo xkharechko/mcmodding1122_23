@@ -174,6 +174,18 @@ public class GuiEnchantedEnchantment extends GuiContainer
             this.zLevel = 0.0F;
             this.mc.getTextureManager().bindTexture(ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE);
             int k1 = this.container.enchantLevels[l];
+            int gemtype;
+
+            if (l < enchantmentsAmount/10F) {
+                gemtype = 0;
+            } else if (l < enchantmentsAmount/3.34F) {
+                gemtype = 1;
+            } else if (l < enchantmentsAmount/1.43F) {
+                gemtype = 2;
+            } else {
+                gemtype = 3;
+            }
+
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             if (k1 == 0)
@@ -190,7 +202,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
                 if (this.container.enchantClue[l] == -1) {
                     this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 185, 108, 19);
-                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * l, 239, 16, 16);
+                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
                     i2 = 4226832;
                 } else if ((gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance()) && l < enchantmentsAmount/10F)
@@ -210,12 +222,12 @@ public class GuiEnchantedEnchantment extends GuiContainer
                         this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 166, 108, 19);
                     }
 
-                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * l, 223, 16, 16);
+                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 223, 16, 16);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, i2);
                     i2 = 8453920;
                 } else {
                     this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 185, 108, 19);
-                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * l, 239, 16, 16);
+                    this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * gemtype, 239, 16, 16);
                     fontrenderer.drawSplitString(s1, j1, j + 16 + 19 * l, l1, (i2 & 16711422) >> 1);
                     i2 = 4226832;
                 }
