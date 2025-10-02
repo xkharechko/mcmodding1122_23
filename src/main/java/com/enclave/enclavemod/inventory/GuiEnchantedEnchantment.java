@@ -390,7 +390,9 @@ public class GuiEnchantedEnchantment extends GuiContainer
                 }
 
                 fontrenderer = this.mc.standardGalacticFontRenderer;
-                fontrenderer.drawString(s.substring(0, 7), j1 + 86 - fontrenderer.getStringWidth(s.substring(0, 7)), j + 17 + 19 * (l + reduceL) + 7, i2);
+                int stringSize = s.length();
+                String enchantMagicName = stringSize > 7 ? s.substring(0, 7) : s;
+                fontrenderer.drawString(enchantMagicName, j1 + 86 - fontrenderer.getStringWidth(enchantMagicName), j + 17 + 19 * (l + reduceL) + 7, i2);
             }
         }
 

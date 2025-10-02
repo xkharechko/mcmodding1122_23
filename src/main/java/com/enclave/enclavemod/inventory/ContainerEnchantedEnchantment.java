@@ -274,6 +274,10 @@ public class ContainerEnchantedEnchantment extends Container {
                     n = 1.0F;
                 }
 
+                if (playerIn.capabilities.isCreativeMode) {
+                    n = 1.0F;
+                }
+
                 if (id < 0 || id >= list.size() * n) return false;
 
                 EnchantmentData chosen = list.get(id);
