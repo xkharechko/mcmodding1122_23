@@ -3,7 +3,6 @@ package com.enclave.enclavemod.inventory;
 import com.enclave.enclavemod.registers.ItemsRegistry;
 import com.google.common.collect.Lists;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.model.ModelBook;
@@ -13,7 +12,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnchantmentNameParts;
@@ -55,6 +53,9 @@ public class GuiEnchantedEnchantment extends GuiContainer
     private ItemStack last = ItemStack.EMPTY;
     private final IWorldNameable nameable;
     private final List<String> generatedNames = new ArrayList<>();
+    private boolean isDraggingScroll = false;
+    private boolean isDraggingSlider = false;
+    private boolean movedToMaxLevel = false;
 
     public GuiEnchantedEnchantment(InventoryPlayer inventory, World worldIn, IWorldNameable nameable)
     {
@@ -86,6 +87,20 @@ public class GuiEnchantedEnchantment extends GuiContainer
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
 
+        int scrollBarX = mouseX - (i + 288);
+        int scrollBarY = mouseY - (j + 14);
+
+        int sliderBarX = mouseX - (i + 60);
+        int sliderBarY = mouseY - (j + 59);
+
+        if (mouseButton == 0 && scrollBarX >= 0 && scrollBarY >= 0 && scrollBarX < 12 && scrollBarY < 133 && !isDraggingSlider) {
+            isDraggingScroll = true;
+        }
+
+        if (mouseButton == 0 && sliderBarX >= 0 && sliderBarY >= 0 && sliderBarX < 108 && sliderBarY < 12 && !isDraggingScroll) {
+            isDraggingSlider = true;
+        }
+
         for (int k = scrollPos; k < 20; ++k) {
             if (k - scrollPos > 6) {
                 break;
@@ -101,16 +116,46 @@ public class GuiEnchantedEnchantment extends GuiContainer
     }
 
     @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+        super.mouseReleased(mouseX, mouseY, state);
+        isDraggingScroll = false;
+        isDraggingSlider = false;
+    }
+
+    @Override
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
+
         int d = 0;
+        int i = (this.width - this.xSize) / 2;
+        int j = (this.height - this.ySize) / 2;
+
+        int scaledX = Mouse.getX() * this.width / this.mc.displayWidth;
+        int scaledY = this.height - Mouse.getY() * this.height / this.mc.displayHeight - 1;
+
+
+        int scrollZoneX = scaledX - (i + 174);
+        int scrollZoneY = scaledY - (j + 14);
+
+        int sliderZoneX = scaledX - (i + 60);
+        int sliderZoneY = scaledY - (j + 59);
+
         d = Mouse.getEventDWheel();
-        if (d != 0 && needsScroll) {
+
+        if (d != 0 && needsScroll && scrollZoneX >= 0 && scrollZoneY >= 0 && scrollZoneX < 126 && scrollZoneY < 133) {
             int dir = d > 0 ? -1 : 1;
             scrollPos += dir;
         }
         if (scrollPos < 0) {
             scrollPos = 0;
+        }
+
+        if (d != 0 && needsSlider && sliderZoneX >= 0 && sliderZoneY >= 0 && sliderZoneX < 108 && sliderZoneY < 12) {
+            int dir = d > 0 ? 1 : -1;
+            sliderPos += dir;
+        }
+        if (sliderPos < 0) {
+            sliderPos = 0;
         }
     }
 
@@ -148,6 +193,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
         float f4 = this.oFlip + (this.flip - this.oFlip) * partialTicks + 0.75F;
         f3 = (f3 - (float) MathHelper.fastFloor((double)f3)) * 1.6F - 0.3F;
         f4 = (f4 - (float) MathHelper.fastFloor((double)f4)) * 1.6F - 0.3F;
+        int maxEnchantmentLevel = this.container.worldClue[0] - 1;
 
         if (f3 < 0.0F)
         {
@@ -184,16 +230,67 @@ public class GuiEnchantedEnchantment extends GuiContainer
         ItemStack gem = this.container.getCurrentGem();
         int enchantmentsAmount = 0;
         float scrollMultiplier;
+        float sliderMultiplier;
 
         for (int n : this.container.enchantClue) {
             if (n == -1) break;
             enchantmentsAmount++;
         }
 
-        scrollMultiplier = 118.00F / (enchantmentsAmount - 7 > 0 ? enchantmentsAmount - 7 : 1);
+        scrollMultiplier = 118.00F / Math.max(enchantmentsAmount - 7, 1);
+        sliderMultiplier = 93.00F / Math.max(maxEnchantmentLevel, 1);
+
+        if (isDraggingScroll) {
+            if (mouseY < (int) (j + 14 + (1 * scrollMultiplier))) {
+                scrollPos = 0;
+            } else if (mouseY < (int) (j + 14 + (2 * scrollMultiplier))) {
+                scrollPos = 1;
+            } else if (mouseY < (int) (j + 14 + (3 * scrollMultiplier))) {
+                scrollPos = 2;
+            } else if (mouseY < (int) (j + 14 + (4 * scrollMultiplier))) {
+                scrollPos = 3;
+            } else if (mouseY < (int) (j + 14 + (5 * scrollMultiplier))) {
+                scrollPos = 4;
+            } else if (mouseY < (int) (j + 14 + (6 * scrollMultiplier))) {
+                scrollPos = 5;
+            }
+        }
+
+        if (isDraggingSlider) {
+            if (mouseX < (int) (i + 60 + 1 * sliderMultiplier)) {
+                sliderPos = 0;
+            } else if (mouseX < (int) (i + 60 + 2 * sliderMultiplier)) {
+                sliderPos = 1;
+            } else if (mouseX < (int) (i + 60 + 3 * sliderMultiplier)) {
+                sliderPos = 2;
+            } else if (mouseX < (int) (i + 60 + 4 * sliderMultiplier)) {
+                sliderPos = 3;
+            } else if (mouseX < (int) (i + 60 + 5 * sliderMultiplier)) {
+                sliderPos = 4;
+            } else if (mouseX < (int) (i + 60 + 6 * sliderMultiplier)) {
+                sliderPos = 5;
+            } else if (mouseX < (int) (i + 60 + 7 * sliderMultiplier)) {
+                sliderPos = 6;
+            } else if (mouseX < (int) (i + 60 + 8 * sliderMultiplier)) {
+                sliderPos = 7;
+            } else if (mouseX < (int) (i + 60 + 9 * sliderMultiplier)) {
+                sliderPos = 8;
+            } else if (mouseX < (int) (i + 60 + 10 * sliderMultiplier)) {
+                sliderPos = 9;
+            }
+        }
 
         if (scrollPos > enchantmentsAmount - 7) {
             scrollPos = (Math.max(enchantmentsAmount - 7, 0));
+        }
+
+        if (sliderPos > maxEnchantmentLevel) {
+            sliderPos = (Math.max(maxEnchantmentLevel, 0));
+        }
+
+        if (!this.inventorySlots.getSlot(0).getStack().isEmpty() && maxEnchantmentLevel > 0 && !movedToMaxLevel) {
+            this.sliderPos = Math.max(maxEnchantmentLevel, 0);
+            this.movedToMaxLevel = true;
         }
 
         boolean isVisible;
@@ -234,20 +331,18 @@ public class GuiEnchantedEnchantment extends GuiContainer
             {
                 String s = "" + k1;
                 int l1 = 86 - this.fontRenderer.getStringWidth(s);
-
-                int globalIndex = l + scrollPos;
-
-                while (generatedNames.size() <= globalIndex) {
-                    generatedNames.add(null);
-                }
-
-                if (generatedNames.get(globalIndex) == null) {
-                    generatedNames.set(globalIndex, EnchantmentNameParts.getInstance().generateNewRandomName(this.fontRenderer, l1));
-                }
-
                 FontRenderer fontrenderer = this.mc.standardGalacticFontRenderer;
-                int i2 = 6839882;
 
+                if (this.last != this.inventorySlots.getSlot(0).getStack()) {
+                    generatedNames.clear();
+                    this.last = this.inventorySlots.getSlot(0).getStack();
+                }
+
+                while (generatedNames.size() <= 6 + (enchantmentsAmount >= 7 ? enchantmentsAmount - 7 : 0)) {
+                    generatedNames.add(EnchantmentNameParts.getInstance().generateNewRandomName(this.fontRenderer, l1));
+                }
+
+                int i2 = 6839882;
                 if (this.container.enchantClue[l] == -1) {
                     drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
                     drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
@@ -291,13 +386,15 @@ public class GuiEnchantedEnchantment extends GuiContainer
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         if(needsScroll) {
-            drawModalRectWithCustomSizedTexture(i + 288, (int) (j + 14 + (scrollPos * scrollMultiplier)), 368, 0, 12, 15, 392.0F, 256.0F);
+            drawModalRectWithCustomSizedTexture(i + 288, (int) ((isDraggingScroll ? (mouseY - 7 > 14 + j ? (Math.min(mouseY - 7, 132 + j)) : 14 + j) : j + 14 + (scrollPos * scrollMultiplier))), 368, 0, 12, 15, 392.0F, 256.0F);
         } else {
             drawModalRectWithCustomSizedTexture(i + 288, j + 14, 380, 0, 12, 15, 392.0F, 256.0F);
         }
 
+        needsSlider = this.container.worldClue[0] > 1;
+
         if(needsSlider) {
-            drawModalRectWithCustomSizedTexture(i + 60 + sliderPos, j + 59, 338, 0, 15, 12, 392.0F, 256.0F);
+            drawModalRectWithCustomSizedTexture((int) (isDraggingSlider ? (mouseX - 7 > 60 + i ? (Math.min(mouseX - 7, 153 + i)) : 60 + i) : (i + 60 + sliderPos * sliderMultiplier)), j + 59, 338, 0, 15, 12, 392.0F, 256.0F);
         } else {
             drawModalRectWithCustomSizedTexture(i + 60, j + 59, 353, 0, 15, 12, 392.0F, 256.0F);
         }
@@ -371,6 +468,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
             needsScroll = false;
             scrollPos = 0;
             generatedNames.clear();
+            movedToMaxLevel = false;
 
             while (true)
             {
