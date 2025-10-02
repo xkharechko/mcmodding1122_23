@@ -5,6 +5,7 @@ import com.enclave.enclavemod.entity.EntityBoar;
 import com.enclave.enclavemod.inventory.GuiHandler;
 import com.enclave.enclavemod.registers.BlocksRegistry;
 import com.enclave.enclavemod.registers.EntityRegistryHandler;
+import com.enclave.enclavemod.registers.NetworkPacketsRegistry;
 import com.enclave.enclavemod.treecapitator.TreeCapitator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
@@ -46,6 +47,7 @@ public class CommonProxy {
     }
 
     public void preInit(FMLPreInitializationEvent event) {
+        NetworkPacketsRegistry.registerMessages();
         EntityRegistryHandler.register();
         MinecraftForge.EVENT_BUS.register(this);
         BlocksRegistry.register();

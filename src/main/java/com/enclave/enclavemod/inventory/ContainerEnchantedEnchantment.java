@@ -38,6 +38,7 @@ public class ContainerEnchantedEnchantment extends Container {
     public int[] enchantClue;
     public int[] worldClue;
     public int enchantmentsAmount;
+    public int sliderPos = 0;
 
     @SideOnly(Side.CLIENT)
     public ContainerEnchantedEnchantment(InventoryPlayer playerInv, World worldIn)
@@ -187,14 +188,14 @@ public class ContainerEnchantedEnchantment extends Container {
                         {
                             if ((j != 0 || k != 0) && this.worldPointer.isAirBlock(this.position.add(k, 0, j)) && this.worldPointer.isAirBlock(this.position.add(k, 1, j)))
                             {
-                                power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 0, j * 2));
-                                power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 1, j * 2));
+                                power += getEnchantPowerBonus(worldPointer, position.add(k * 2, 0, j * 2));
+                                power += getEnchantPowerBonus(worldPointer, position.add(k * 2, 1, j * 2));
                                 if (k != 0 && j != 0)
                                 {
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 0, j));
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k * 2, 1, j));
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k, 0, j * 2));
-                                    power += net.minecraftforge.common.ForgeHooks.getEnchantPower(worldPointer, position.add(k, 1, j * 2));
+                                    power += getEnchantPowerBonus(worldPointer, position.add(k * 2, 0, j));
+                                    power += getEnchantPowerBonus(worldPointer, position.add(k * 2, 1, j));
+                                    power += getEnchantPowerBonus(worldPointer, position.add(k, 0, j * 2));
+                                    power += getEnchantPowerBonus(worldPointer, position.add(k, 1, j * 2));
                                 }
                             }
                         }
@@ -290,7 +291,7 @@ public class ContainerEnchantedEnchantment extends Container {
                     if (flag) {
                             ItemEnchantedBook.addEnchantment(itemstack, chosen);
                     } else {
-                            itemstack.addEnchantment(chosen.enchantment, chosen.enchantmentLevel);
+                            itemstack.addEnchantment(chosen.enchantment, chosen.enchantmentLevel - sliderPos);
                     }
 
                     if (!playerIn.capabilities.isCreativeMode)
@@ -439,5 +440,10 @@ public class ContainerEnchantedEnchantment extends Container {
         }
 
         return itemstack;
+    }
+
+    public float getEnchantPowerBonus(World world, BlockPos pos)
+    {
+        return world.getBlockState(pos).getBlock() == Blocks.RED_FLOWER ? 1 : 0;
     }
 }
