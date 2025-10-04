@@ -4,15 +4,19 @@ import com.enclave.enclavemod.hitmarker.FullClientHitmarker;
 import com.enclave.enclavemod.hitmarker.Hitmarker;
 import com.enclave.enclavemod.registers.BlocksRegistry;
 import com.enclave.enclavemod.registers.EntityRegistryHandler;
+import com.enclave.enclavemod.renderer.RenderClaymoreArea;
 import com.enclave.enclavemod.treecapitator.TreeCapitator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -26,6 +30,23 @@ public class ClientProxy extends CommonProxy {
     private FullClientHitmarker fullClientHitmarker;
     private Hitmarker hitmarker = new Hitmarker();
     private final TreeCapitator treeCapitator = new TreeCapitator();
+    private final RenderClaymoreArea claymoreRenderer = new RenderClaymoreArea();
+
+    @SubscribeEvent
+    public void onRenderWorldLast(RenderWorldLastEvent event) {
+        Minecraft mc = Minecraft.getMinecraft();
+
+        RayTraceResult traceResult = mc.objectMouseOver;
+        EntityPlayer player = mc.player;
+        if (traceResult == null || player == null) return;
+
+        if (mc.world != null) {
+            WorldClient worldClient = mc.world;
+            float partialTicks = event.getPartialTicks();
+
+            claymoreRenderer.drawPreview(worldClient, player, traceResult, partialTicks);
+        }
+    }
 
     @SubscribeEvent
     public void onRenderOverlay(RenderGameOverlayEvent.Post event) {
