@@ -1,5 +1,6 @@
 package com.enclave.enclavemod.renderer;
 
+import com.enclave.enclavemod.registers.ItemsRegistry;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -8,17 +9,20 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Objects;
+
 public class RenderClaymoreArea {
 
     public void drawPreview(WorldClient world, EntityPlayer player, RayTraceResult movingObjectPositionIn, float partialTicks)
     {
-        if (movingObjectPositionIn.typeOfHit == RayTraceResult.Type.BLOCK && movingObjectPositionIn.sideHit == EnumFacing.UP) {
+        if (movingObjectPositionIn.typeOfHit == RayTraceResult.Type.BLOCK && player.getHeldItemMainhand().getItem() == ItemsRegistry.CLAYMORE) {
 
             BlockPos blockpos = movingObjectPositionIn.getBlockPos();
             IBlockState iblockstate = world.getBlockState(blockpos);
@@ -43,14 +47,14 @@ public class RenderClaymoreArea {
                 Vec3d worldUp = new Vec3d(0.0D, 1.0D, 0.0D);
                 Vec3d preview = look.crossProduct(worldUp).normalize();
 
-                double length = 1.5D;
-                double base = 1.0D;
+                double length = 1.06D;
 
-                Vec3d center = look.scale(length);
-                Vec3d left = look.scale(length - 0.15D).add(preview.scale(-base * 0.5));
-                Vec3d right = look.scale(length - 0.15D).add(preview.scale(base * 0.5));
+                Vec3d center = look.scale(length).add(look.scale(length));
+                Vec3d left = look.scale(length).add(preview.scale(-length));
+                Vec3d right = look.scale(length).add(preview.scale(length));
 
-                double yOffset = 0.05D;
+                double yOffset = 0.2D;
+
                 double cyOffset = cy + yOffset;
 
                 double ctxX = cx + center.x, ctyY = cyOffset + center.y, ctzZ = cz + center.z;
@@ -71,6 +75,11 @@ public class RenderClaymoreArea {
                 buf.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
                 float r = 0.0f, g = 1.0f, b = 0.2f, a = 0.95f;
+
+                if(movingObjectPositionIn.sideHit != EnumFacing.UP) {
+                    r = 1.0f;
+                    g = 0.0f;
+                }
 
                 buf.pos(cx, cyOffset, cz).color(r, g, b, a).endVertex();
                 buf.pos(ctxX, ctyY, ctzZ).color(r, g, b, a).endVertex();

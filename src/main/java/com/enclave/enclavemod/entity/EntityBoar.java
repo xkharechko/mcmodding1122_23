@@ -47,7 +47,7 @@ public class EntityBoar extends EntityMob {
     public EntityBoar(World worldIn)
     {
         super(worldIn);
-        this.setSize(1.3F, 1.3F);
+        this.setSize(0.9F, 0.9F);
     }
 
     protected void initEntityAI()

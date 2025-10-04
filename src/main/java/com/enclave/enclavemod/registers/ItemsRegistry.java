@@ -65,6 +65,8 @@ public class ItemsRegistry {
     @ObjectHolder("gem_legendary")
     public static final Item GEM_LEGENDARY = null;
 
+    @ObjectHolder("claymore")
+    public static final Item CLAYMORE = null;
 
     @SubscribeEvent
     public static void onRegistryItem(RegistryEvent.Register<Item> e) {
@@ -84,6 +86,7 @@ public class ItemsRegistry {
         e.getRegistry().register(new ItemGemRare("gem_rare", 16).setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemGemMythic("gem_mythic", 16).setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemGemLegendary("gem_legendary", 16).setCreativeTab(CreativeTabs.MISC));
+        e.getRegistry().register(new ItemClaymore("Claymore").setCreativeTab(CreativeTabs.MISC));
     }
 
     @SubscribeEvent
