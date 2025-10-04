@@ -86,7 +86,7 @@ public class ItemsRegistry {
         e.getRegistry().register(new ItemGemRare("gem_rare", 16).setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemGemMythic("gem_mythic", 16).setCreativeTab(CreativeTabs.MISC));
         e.getRegistry().register(new ItemGemLegendary("gem_legendary", 16).setCreativeTab(CreativeTabs.MISC));
-        e.getRegistry().register(new ItemClaymore("Claymore").setCreativeTab(CreativeTabs.MISC));
+        e.getRegistry().register(new ItemClaymore("claymore").setCreativeTab(CreativeTabs.MISC));
     }
 
     @SubscribeEvent
@@ -102,6 +102,7 @@ public class ItemsRegistry {
         registryModel(GEM_RARE);
         registryModel(GEM_MYTHIC);
         registryModel(GEM_LEGENDARY);
+        registryModel(CLAYMORE);
     }
 
     @SideOnly(Side.CLIENT)
