@@ -1,5 +1,6 @@
 package com.enclave.enclavemod.entity;
 
+import com.enclave.enclavemod.registers.ItemsRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 
@@ -107,12 +109,6 @@ public class EntityClaymore extends Entity
         this.setFuse(compound.getShort("Fuse"));
     }
 
-    @Nullable
-    public EntityLivingBase getTntPlacedBy()
-    {
-        return this.claymorePlacedBy;
-    }
-
     public float getEyeHeight()
     {
         return 0.0F;
@@ -140,5 +136,20 @@ public class EntityClaymore extends Entity
     public int getFuse()
     {
         return this.fuse;
+    }
+
+    @Override
+    public boolean attackEntityFrom(DamageSource source, float amount) {
+        if (source.getTrueSource() instanceof EntityPlayer) {
+            EntityPlayer attacker = (EntityPlayer) source.getTrueSource();
+
+            if (attacker == this.claymorePlacedBy) {
+                this.dropItem(ItemsRegistry.CLAYMORE, 1);
+                this.setDead();
+                return true;
+            }
+        }
+
+        return super.attackEntityFrom(source, amount);
     }
 }

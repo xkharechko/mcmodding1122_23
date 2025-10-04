@@ -77,7 +77,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
         this.fontRenderer.drawString(this.nameable.getDisplayName().getUnformattedText(), 8, 5, 4210752);
         this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
         this.fontRenderer.drawString((this.container.worldClue[0] > 0 ? "Enchantment level: " + (this.container.worldClue[0] - (maxEnchantmentLevel - sliderPos)) : "Select an item to enchant"),
-                                     (this.container.worldClue[0] > 0 ? 75 : 67), 48, 4210752);
+                (this.container.worldClue[0] > 0 ? 75 : 67), 48, 4210752);
     }
 
     public void updateScreen()
