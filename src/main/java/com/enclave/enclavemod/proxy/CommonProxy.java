@@ -6,6 +6,7 @@ import com.enclave.enclavemod.inventory.GuiHandler;
 import com.enclave.enclavemod.registers.BlocksRegistry;
 import com.enclave.enclavemod.registers.EntityRegistryHandler;
 import com.enclave.enclavemod.registers.NetworkPacketsRegistry;
+import com.enclave.enclavemod.structure.WorldGenEnchantedEnchantmentTableStructure;
 import com.enclave.enclavemod.treecapitator.TreeCapitator;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.EnumCreatureType;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.util.HashSet;
 
@@ -47,6 +49,7 @@ public class CommonProxy {
     }
 
     public void preInit(FMLPreInitializationEvent event) {
+        GameRegistry.registerWorldGenerator(new WorldGenEnchantedEnchantmentTableStructure(), 0);
         NetworkPacketsRegistry.registerMessages();
         EntityRegistryHandler.register();
         MinecraftForge.EVENT_BUS.register(this);
