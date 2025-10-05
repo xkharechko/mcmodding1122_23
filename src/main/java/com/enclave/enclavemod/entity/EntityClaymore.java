@@ -1,6 +1,7 @@
 package com.enclave.enclavemod.entity;
 
 import com.enclave.enclavemod.registers.ItemsRegistry;
+import com.enclave.enclavemod.registers.SoundEventsRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
@@ -73,6 +74,7 @@ public class EntityClaymore extends Entity
                     if (Math.abs(entity.posY - this.posY) < 0.5D) {
                         this.isTriggered = true;
                         this.fuse = 20;
+                        playSound(SoundEventsRegistry.CLAYMORE_TRIGGER, 1.0F, 1.0F);
                         break;
                     }
                 }

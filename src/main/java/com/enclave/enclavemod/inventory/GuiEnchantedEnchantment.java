@@ -397,23 +397,48 @@ public class GuiEnchantedEnchantment extends GuiContainer
         }
 
         needsScroll = enchantmentsAmount > 7;
+        needsSlider = this.container.worldClue[0] > 1;
 
         this.mc.getTextureManager().bindTexture(ENCHANTED_ENCHANTMENT_TABLE_GUI_TEXTURE);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if(needsScroll) {
-            drawModalRectWithCustomSizedTexture(i + 288, (int) ((isDraggingScroll ? (mouseY - 7 > 14 + j ? (Math.min(mouseY - 7, 132 + j)) : 14 + j) : (scrollCorrectPos - 7 > 0 ? (scrollCorrectPos - 7 < j + 14 ? j + 14 : Math.min(scrollCorrectPos - 7, j + 14 + 118)) : j + 14 + (scrollPos * scrollMultiplier)))), 368, 0, 12, 15, 392.0F, 256.0F);
+        int scrollDisplayY, sliderDisplayX, scrollU, sliderU;
+
+        if (needsScroll) {
+            if (isDraggingScroll) {
+                scrollDisplayY = mouseY - 7 > 14 + j ? (Math.min(mouseY - 7, 132 + j)) : 14 + j;
+            } else {
+                if (scrollCorrectPos - 7 > 0) {
+                    scrollDisplayY = scrollCorrectPos - 7 < j + 14 ? j + 14 : (int) Math.min(scrollCorrectPos - 7, j + 14 + 118);
+                } else {
+                    scrollDisplayY = (int) (j + 14 + scrollPos * scrollMultiplier);
+                }
+            }
+            scrollU = 368;
         } else {
-            drawModalRectWithCustomSizedTexture(i + 288, j + 14, 380, 0, 12, 15, 392.0F, 256.0F);
+            scrollDisplayY = j + 14;
+            scrollU = 380;
         }
 
-        needsSlider = this.container.worldClue[0] > 1;
-
-        if(needsSlider) {
-            drawModalRectWithCustomSizedTexture((int) (isDraggingSlider ? (mouseX - 7 > 60 + i ? (Math.min(mouseX - 7, 153 + i)) : 60 + i) : (sliderCorrectPos - 7 > 0 ? ((sliderCorrectPos - 7 < i + 60 ? i + 60 : Math.min(sliderCorrectPos - 7, i + 60 + 93))) : (i + 60 + sliderPos * sliderMultiplier))), j + 59, 338, 0, 15, 12, 392.0F, 256.0F);
+        if (needsSlider) {
+            if (isDraggingSlider) {
+                sliderDisplayX = mouseX - 7 > 60 + i ? (Math.min(mouseX - 7, 153 + i)) : 60 + i;
+            } else {
+                if (sliderCorrectPos - 7 > 0) {
+                    sliderDisplayX = sliderCorrectPos - 7 < i + 60 ? i + 60 : (int) Math.min(sliderCorrectPos - 7, i + 60 + 93);
+                } else {
+                    sliderDisplayX = (int) (i + 60 + sliderPos * sliderMultiplier);
+                }
+            }
+            sliderU = 338;
         } else {
-            drawModalRectWithCustomSizedTexture(i + 60, j + 59, 353, 0, 15, 12, 392.0F, 256.0F);
+            sliderDisplayX = i + 60;
+            sliderU = 353;
         }
+
+        drawModalRectWithCustomSizedTexture(i + 288, scrollDisplayY, scrollU, 0, 12, 15, 392.0F, 256.0F);
+
+        drawModalRectWithCustomSizedTexture(sliderDisplayX, j + 59, sliderU, 0, 15, 12, 392.0F, 256.0F);
 
         NetworkPacketsRegistry.INSTANCE.sendToServer(new MessageSyncSliderPos(maxEnchantmentLevel - sliderPos));
     }

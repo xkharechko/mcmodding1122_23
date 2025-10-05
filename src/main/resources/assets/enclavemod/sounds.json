@@ -1,0 +1,10 @@
+{
+  "claymore_trigger": {
+    "sounds": [
+      {
+        "name": "enclavemod:claymore_trigger",
+        "stream": false
+      }
+    ]
+  }
+}
