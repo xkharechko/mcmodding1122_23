@@ -131,7 +131,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
     public void handleMouseInput() throws IOException {
         super.handleMouseInput();
 
-        int d = 0;
+        int d;
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
 
@@ -181,13 +181,11 @@ public class GuiEnchantedEnchantment extends GuiContainer
         GlStateManager.viewport((scaledresolution.getScaledWidth() - 453) / 2 * scaledresolution.getScaleFactor(), (scaledresolution.getScaledHeight() - 240) / 2 * scaledresolution.getScaleFactor(), 320 * scaledresolution.getScaleFactor(), 240 * scaledresolution.getScaleFactor());
         GlStateManager.translate(-0.34F, 0.23F, 0.0F);
         Project.gluPerspective(90.0F, 1.3333334F, 9.0F, 80.0F);
-        float f = 1.0F;
         GlStateManager.matrixMode(5888);
         GlStateManager.loadIdentity();
         RenderHelper.enableStandardItemLighting();
         GlStateManager.translate(0.0F, 3.3F, -16.0F);
         GlStateManager.scale(1.0F, 1.0F, 1.0F);
-        float f1 = 5.0F;
         GlStateManager.scale(5.0F, 5.0F, 5.0F);
         GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(ENCHANTMENT_TABLE_BOOK_TEXTURE);
@@ -200,10 +198,6 @@ public class GuiEnchantedEnchantment extends GuiContainer
         float f4 = this.oFlip + (this.flip - this.oFlip) * partialTicks + 0.75F;
         f3 = (f3 - (float) MathHelper.fastFloor((double)f3)) * 1.6F - 0.3F;
         f4 = (f4 - (float) MathHelper.fastFloor((double)f4)) * 1.6F - 0.3F;
-
-        if (!this.inventorySlots.getSlot(0).getStack().isEmpty() && this.last != this.inventorySlots.getSlot(0).getStack()) {
-            maxEnchantmentLevel = this.container.worldClue[0] - 1;
-        }
 
         if (f3 < 0.0F)
         {
@@ -237,10 +231,15 @@ public class GuiEnchantedEnchantment extends GuiContainer
         RenderHelper.disableStandardItemLighting();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         EnchantmentNameParts.getInstance().reseedRandomGenerator((long)this.container.xpSeed);
+
         ItemStack gem = this.container.getCurrentGem();
         int enchantmentsAmount = 0;
         float scrollMultiplier;
         float sliderMultiplier;
+
+        if (!this.inventorySlots.getSlot(0).getStack().isEmpty() && this.last != this.inventorySlots.getSlot(0).getStack()) {
+            maxEnchantmentLevel = this.container.worldClue[0] - 1;
+        }
 
         for (int n : this.container.enchantClue) {
             if (n == -1) break;
@@ -306,13 +305,13 @@ public class GuiEnchantedEnchantment extends GuiContainer
         }
 
         boolean isVisible;
-        int reduceL = 0;
+        int reduceIndex = 0;
 
         for (int l = 0; l < 7 + (enchantmentsAmount >= 7 ? enchantmentsAmount - 7 : 0); ++l)
         {
             isVisible = 7 - l + scrollPos <= 7 && 7 - l + scrollPos > 0;
             if(!isVisible) {
-                reduceL--;
+                reduceIndex--;
                 continue;
             }
 
@@ -337,7 +336,7 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
             if (k1 <= 0)
             {
-                drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
+                drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceIndex), 0, 185, 108, 19, 392.0F, 256.0F);
             }
             else
             {
@@ -356,43 +355,43 @@ public class GuiEnchantedEnchantment extends GuiContainer
 
                 int i2 = 6839882;
                 if (this.container.enchantClue[l] == -1) {
-                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
-                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
-                    fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceL), l1, (i2 & 16711422) >> 1);
+                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceIndex), 0, 185, 108, 19, 392.0F, 256.0F);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceIndex), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
+                    fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceIndex), l1, (i2 & 16711422) >> 1);
                     i2 = 5985349;
                 } else if ((gem.isItemEqual(ItemsRegistry.GEM_COMMON.getDefaultInstance()) && l < enchantmentsAmount * 0.1F)
                         || (gem.isItemEqual(ItemsRegistry.GEM_RARE.getDefaultInstance()) && l < enchantmentsAmount * 0.4F)
                         || (gem.isItemEqual(ItemsRegistry.GEM_MYTHIC.getDefaultInstance()) && l < enchantmentsAmount * 0.7F)
                         || gem.isItemEqual(ItemsRegistry.GEM_LEGENDARY.getDefaultInstance()) || this.mc.player.capabilities.isCreativeMode) {
                     int j2 = mouseX - (i + 174);
-                    int k2 = mouseY - (j + 14 + 19 * (l + reduceL));
+                    int k2 = mouseY - (j + 14 + 19 * (l + reduceIndex));
 
                     if (j2 >= 0 && k2 >= 0 && j2 < 108 && k2 < 19)
                     {
-                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 204, 108, 19, 392.0F, 256.0F);
+                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceIndex), 0, 204, 108, 19, 392.0F, 256.0F);
                         i2 = 16777088;
-                        drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
-                        fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceL), l1, i2);
+                        drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceIndex), 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
+                        fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceIndex), l1, i2);
                         i2 = 13409475;
                     }
                     else
                     {
-                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 166, 108, 19, 392.0F, 256.0F);
-                        drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
-                        fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceL), l1, i2);
+                        drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceIndex), 0, 166, 108, 19, 392.0F, 256.0F);
+                        drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceIndex), 16 * gemtype, 223, 16, 16, 392.0F, 256.0F);
+                        fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceIndex), l1, i2);
                         i2 = 11575681;
                     }
                 } else {
-                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceL), 0, 185, 108, 19, 392.0F, 256.0F);
-                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceL), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
-                    fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceL), l1, (i2 & 16711422) >> 1);
+                    drawModalRectWithCustomSizedTexture(i1, j + 14 + 19 * (l + reduceIndex), 0, 185, 108, 19, 392.0F, 256.0F);
+                    drawModalRectWithCustomSizedTexture(i1 + 1, j + 15 + 19 * (l + reduceIndex), 16 * gemtype, 239, 16, 16, 392.0F, 256.0F);
+                    fontrenderer.drawSplitString(s, j1, j + 16 + 19 * (l + reduceIndex), l1, (i2 & 16711422) >> 1);
                     i2 = 5985349;
                 }
 
                 fontrenderer = this.mc.standardGalacticFontRenderer;
                 int stringSize = s.length();
                 String enchantMagicName = stringSize > 7 ? s.substring(0, 7) : s;
-                fontrenderer.drawString(enchantMagicName, j1 + 86 - fontrenderer.getStringWidth(enchantMagicName), j + 17 + 19 * (l + reduceL) + 7, i2);
+                fontrenderer.drawString(enchantMagicName, j1 + 86 - fontrenderer.getStringWidth(enchantMagicName), j + 17 + 19 * (l + reduceIndex) + 7, i2);
             }
         }
 
