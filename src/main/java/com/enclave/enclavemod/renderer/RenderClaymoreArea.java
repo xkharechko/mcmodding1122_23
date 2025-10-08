@@ -1,5 +1,6 @@
 package com.enclave.enclavemod.renderer;
 
+import com.enclave.enclavemod.entity.EntityClaymore;
 import com.enclave.enclavemod.registers.ItemsRegistry;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -26,6 +27,7 @@ public class RenderClaymoreArea {
 
             BlockPos blockpos = movingObjectPositionIn.getBlockPos();
             IBlockState iblockstate = world.getBlockState(blockpos);
+            EntityClaymore claymore = new EntityClaymore(world);
 
             if (iblockstate.getMaterial() != Material.AIR && world.getWorldBorder().contains(blockpos)) {
 
@@ -44,16 +46,17 @@ public class RenderClaymoreArea {
                 }
                 look = look.normalize();
 
-                Vec3d worldUp = new Vec3d(0.0D, 1.0D, 0.0D);
-                Vec3d preview = look.crossProduct(worldUp).normalize();
+                double length = claymore.getTriggerRadius();
+                double angle = Math.toRadians(45.0D);
 
-                double length = 1.06D;
+                Vec3d leftDir = new Vec3d(look.x * Math.cos(angle) - look.z * Math.sin(angle), 0, look.x * Math.sin(angle) + look.z * Math.cos(angle));
+                Vec3d rightDir = new Vec3d(look.x * Math.cos(-angle) - look.z * Math.sin(-angle), 0, look.x * Math.sin(-angle) + look.z * Math.cos(-angle));
 
-                Vec3d center = look.scale(length).add(look.scale(length));
-                Vec3d left = look.scale(length).add(preview.scale(-length));
-                Vec3d right = look.scale(length).add(preview.scale(length));
+                Vec3d left = leftDir.scale(length);
+                Vec3d right = rightDir.scale(length);
+                Vec3d center = look.scale(length);
 
-                double yOffset = 0.2D;
+                double yOffset = 0.13D;
 
                 double cyOffset = cy + yOffset;
 
@@ -76,7 +79,7 @@ public class RenderClaymoreArea {
 
                 float r = 0.0f, g = 1.0f, b = 0.2f, a = 0.95f;
 
-                if(movingObjectPositionIn.sideHit != EnumFacing.UP) {
+                if(movingObjectPositionIn.sideHit != EnumFacing.UP || iblockstate.getCollisionBoundingBox(world, blockpos) == null) {
                     r = 1.0f;
                     g = 0.0f;
                 }

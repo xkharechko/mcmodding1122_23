@@ -24,6 +24,7 @@ public class EntityClaymore extends Entity
     private EntityLivingBase claymorePlacedBy;
     private int fuse;
     private boolean isTriggered;
+    private final double triggerRadius;
 
     public EntityClaymore(World worldIn)
     {
@@ -31,7 +32,8 @@ public class EntityClaymore extends Entity
         this.fuse = 20;
         this.preventEntitySpawning = true;
         this.isImmuneToFire = true;
-        this.setSize(1.5F, 0.05F);
+        this.setSize(1.0F, 0.05F);
+        this.triggerRadius = 1.5D;
         this.isTriggered = false;
     }
 
@@ -69,13 +71,26 @@ public class EntityClaymore extends Entity
         this.prevPosZ = this.posZ;
 
         if (!this.world.isRemote && !this.isTriggered) {
-            for (Entity entity : this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(0.3D))) {
+            for (Entity entity : this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().grow(5.0D, 0.0D, 5.0D))) {
                 if (entity instanceof EntityLivingBase && entity != this.claymorePlacedBy) {
-                    if (Math.abs(entity.posY - this.posY) < 0.5D) {
-                        this.isTriggered = true;
-                        this.fuse = 20;
-                        playSound(SoundEventsRegistry.CLAYMORE_TRIGGER, 1.0F, 1.0F);
-                        break;
+                    double angleX = entity.posX - this.posX;
+                    double angleZ = entity.posZ - this.posZ;
+
+                    double dx = entity.posX - this.posX;
+                    double dy = entity.posY - this.posY;
+                    double dz = entity.posZ - this.posZ;
+                    double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    double yawToTarget = Math.toDegrees(Math.atan2(angleZ, angleX));
+                    double deltaYaw = net.minecraft.util.math.MathHelper.wrapDegrees(yawToTarget - this.rotationYaw);
+
+                    if (deltaYaw >= 90 && deltaYaw <= 180) {
+                        if (distance <= this.triggerRadius) {
+                            this.isTriggered = true;
+                            this.fuse = 20;
+                            playSound(SoundEventsRegistry.CLAYMORE_TRIGGER, 1.0F, 1.0F);
+                            break;
+                        }
                     }
                 }
             }
@@ -130,14 +145,16 @@ public class EntityClaymore extends Entity
         }
     }
 
-    public int getFuseDataManager()
-    {
+    public int getFuseDataManager() {
         return ((Integer)this.dataManager.get(FUSE)).intValue();
     }
 
-    public int getFuse()
-    {
+    public int getFuse() {
         return this.fuse;
+    }
+
+    public double getTriggerRadius() {
+        return this.triggerRadius;
     }
 
     @Override

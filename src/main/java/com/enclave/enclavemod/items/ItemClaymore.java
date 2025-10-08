@@ -28,13 +28,13 @@ public class ItemClaymore extends Item {
         Minecraft mc = Minecraft.getMinecraft();
         RayTraceResult traceResult = mc.objectMouseOver;
 
-        if(!worldIn.isRemote && traceResult.typeOfHit == RayTraceResult.Type.BLOCK && traceResult.sideHit == EnumFacing.UP) {
+        if(!worldIn.isRemote && traceResult.typeOfHit == RayTraceResult.Type.BLOCK && traceResult.sideHit == EnumFacing.UP && worldIn.getBlockState(traceResult.getBlockPos()).getCollisionBoundingBox(worldIn, traceResult.getBlockPos()) != null) {
             Vec3d lookVec = playerIn.getLookVec();
 
             Vec3d hit = traceResult.hitVec;
-            double x = hit.x + lookVec.x;
+            double x = hit.x;
             double y = hit.y + 0.05D;
-            double z = hit.z + lookVec.z;
+            double z = hit.z;
 
             EntityClaymore claymore = new EntityClaymore(worldIn, x, y, z, playerIn);
             claymore.rotationYaw = playerIn.rotationYaw - 45.0F;

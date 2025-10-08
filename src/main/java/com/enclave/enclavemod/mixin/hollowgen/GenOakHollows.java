@@ -280,13 +280,21 @@ public abstract class GenOakHollows extends WorldGenAbstractTree {
         IBlockState state = worldIn.getBlockState(pos);
         EnumFacing newFacing = EnumFacing.SOUTH;
 
-        if (worldIn.isAirBlock(pos.north())) {
+        if (worldIn.isAirBlock(pos.north())
+                || state.getCollisionBoundingBox(worldIn, pos.north()) == null
+                || worldIn.getBlockState(pos.north()).getBlock() == BlocksRegistry.ACORN) {
             newFacing = EnumFacing.NORTH;
-        } else if (worldIn.isAirBlock(pos.east())) {
+        } else if (worldIn.isAirBlock(pos.east())
+                || state.getCollisionBoundingBox(worldIn, pos.east()) == null
+                || worldIn.getBlockState(pos.east()).getBlock() == BlocksRegistry.ACORN) {
             newFacing = EnumFacing.EAST;
-        } else if (worldIn.isAirBlock(pos.west())) {
+        } else if (worldIn.isAirBlock(pos.west())
+                || state.getCollisionBoundingBox(worldIn, pos.west()) == null
+                || worldIn.getBlockState(pos.west()).getBlock() == BlocksRegistry.ACORN) {
             newFacing = EnumFacing.WEST;
-        } else if (worldIn.isAirBlock(pos.south())) {
+        } else if (worldIn.isAirBlock(pos.south())
+                || state.getCollisionBoundingBox(worldIn, pos.south()) == null
+                || worldIn.getBlockState(pos.south()).getBlock() == BlocksRegistry.ACORN) {
             newFacing = EnumFacing.SOUTH;
         }
 
