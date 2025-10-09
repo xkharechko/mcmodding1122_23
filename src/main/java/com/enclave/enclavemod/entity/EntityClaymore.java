@@ -166,7 +166,13 @@ public class EntityClaymore extends Entity
                 this.dropItem(ItemsRegistry.CLAYMORE, 1);
                 this.setDead();
                 return true;
+            } else {
+                this.isTriggered = true;
+                this.fuse = 0;
             }
+        } else if (source.isExplosion()) {
+            this.isTriggered = true;
+            this.fuse = 0;
         }
 
         return super.attackEntityFrom(source, amount);
