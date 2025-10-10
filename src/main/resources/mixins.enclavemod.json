@@ -6,6 +6,7 @@
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "hollowgen.GenOakHollows"
+    "hollowgen.GenOakHollows",
+    "entity.EntityZombieCourier"
   ]
 }
