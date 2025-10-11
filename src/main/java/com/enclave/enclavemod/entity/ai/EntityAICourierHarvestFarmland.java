@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIMoveToBlock;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
@@ -130,7 +131,7 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
                 List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, entity.getEntityBoundingBox().grow(1.5D));
 
                 for (EntityItem item : items) {
-                    if (item.getItem().getItem() instanceof ItemFood) {
+                    if (item.getItem().getItem() instanceof ItemFood || item.getItem().getItem().equals(Items.WHEAT)) {
                         collectedFood.add(item.getItem());
                         item.setDead();
                     }
