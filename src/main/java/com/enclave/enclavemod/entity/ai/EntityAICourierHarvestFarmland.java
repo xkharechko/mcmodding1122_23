@@ -21,7 +21,7 @@ import java.util.List;
 
 public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
     private final EntityCreature entity;
-    private int currentTask; // 0 => move to row, 1 => harvest all food in row, 2 => delivery food, -1 => none
+    private int currentTask = -1; // 0 => move to row, 1 => harvest all food in row, 2 => delivery food, -1 => none
     private int minX, minZ, maxX, maxZ;
     private boolean isHarvestEnded = false;
     private ArrayList<ItemStack> collectedFood = new ArrayList<>();
@@ -89,6 +89,12 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
                             System.out.println("To delivery: " + collectedFood);
                         }
                     }
+                } else {
+                    visitedDoors.clear();
+                    this.currentTask = -1;
+                    this.runDelay = 100;
+                    this.isHarvestEnded = false;
+                    System.out.println("Finished delivery");
                 }
                 this.runDelay = 1;
             } else {
@@ -246,34 +252,36 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
     }
 
     private BlockPos findNearestDoor() {
-        BlockPos entity = this.entity.getPosition();
+        BlockPos entityPos = this.entity.getPosition();
         int range = 32;
         BlockPos best = null;
         double bestDistSq = Double.MAX_VALUE;
+        BlockPos.MutableBlockPos mPos = new BlockPos.MutableBlockPos();
+
+        int ex = entityPos.getX(), ey = entityPos.getY(), ez = entityPos.getZ();
 
         for (int dx = -range; dx <= range; dx++) {
+            int x = ex + dx;
             for (int dy = -2; dy <= 2; dy++) {
-                zcheck:
+                int y = ey + dy;
                 for (int dz = -range; dz <= range; dz++) {
-                    BlockPos p = entity.add(dx, dy, dz);
-                    if (this.entity.world.getBlockState(p).getBlock() instanceof BlockDoor) {
-                        p = normalizeDoorPos(this.entity.world, p);
-                        for (BlockPos pos : visitedDoors) {
-                            if (pos.equals(p)) {
-                                continue zcheck;
-                            }
-                        }
-                        double d = entity.distanceSq(p);
-                        if (d < bestDistSq) {
-                            bestDistSq = d;
-                            best = p;
-                        }
+                    int z = ez + dz;
+                    mPos.setPos(x, y, z);
+                    IBlockState iBlockState = this.entity.world.getBlockState(mPos);
+                    if (!(iBlockState.getBlock() instanceof BlockDoor)) continue;
+                    BlockPos normalizedDoorPos = normalizeDoorPos(this.entity.world, mPos);
+                    if (visitedDoors.contains(normalizedDoorPos)) continue;
+                    double d = entityPos.distanceSq(normalizedDoorPos);
+                    if (d < bestDistSq) {
+                        bestDistSq = d;
+                        best = normalizedDoorPos.toImmutable();
                     }
                 }
             }
         }
         return best;
     }
+
 
     private BlockPos normalizeDoorPos(World world, BlockPos pos) {
         IBlockState iBlockState = world.getBlockState(pos);
