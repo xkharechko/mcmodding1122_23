@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 import java.util.HashSet;
 
 public class DoorFinder {
-    private HashSet<BlockPos> visitedDoors = new HashSet<>();
+    private final HashSet<BlockPos> visitedDoors = new HashSet<>();
 
     public boolean isNearDoor(BlockPos pos, EntityCreature entity) {
         int x = pos.getX();

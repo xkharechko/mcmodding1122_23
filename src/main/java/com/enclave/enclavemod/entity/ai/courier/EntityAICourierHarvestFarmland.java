@@ -1,5 +1,6 @@
 package com.enclave.enclavemod.entity.ai.courier;
 
+import com.enclave.enclavemod.entity.ai.courier.inventory.CourierInventory;
 import com.enclave.enclavemod.entity.ai.courier.world.DoorFinder;
 import com.enclave.enclavemod.entity.ai.courier.world.FarmlandRowScanner;
 import net.minecraft.block.*;
@@ -14,17 +15,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
     private final EntityCreature entity;
     private int currentTask = -1; // 0 => move to row, 1 => harvest all food in row, 2 => delivery food, -1 => none
     private boolean isHarvestEnded = false;
-    private ArrayList<ItemStack> collectedFood = new ArrayList<>();
-    private DoorFinder doorFinder = new DoorFinder();
-    private FarmlandRowScanner farmlandRowScanner = new FarmlandRowScanner();
+    private final DoorFinder doorFinder = new DoorFinder();
+    private final FarmlandRowScanner rowScanner = new FarmlandRowScanner();
+    private final CourierInventory inventory = new CourierInventory();
 
     public EntityAICourierHarvestFarmland(EntityCreature entity, double speedIn) {
         super(entity, speedIn, 16);
@@ -66,26 +65,26 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
             IBlockState iblockstate = world.getBlockState(blockpos);
             BlockDoor door = (BlockDoor) iblockstate.getBlock();
             door.toggleDoor(world, blockpos, true);
-            if (!collectedFood.isEmpty()) {
-                ItemStack stack = collectedFood.remove(0);
+            if (!inventory.isEmpty()) {
+                ItemStack stack = inventory.takeOne();
                 if (stack != null && !stack.isEmpty()) {
                     world.spawnEntity(new EntityItem(world, blockpos.getX() + 0.5, blockpos.getY() + 1.0, blockpos.getZ() + 0.5, stack.copy()));
                     System.out.println("Spawned " + stack + " at " + blockpos + ": " + world.getBlockState(blockpos).getBlock());
                 }
                 doorFinder.addVisitedDoor(blockpos);
-                if (!collectedFood.isEmpty()) {
+                if (!inventory.isEmpty()) {
                     BlockPos doorPos = doorFinder.findNearestDoor(entity);
                     if (doorPos != null) {
                         this.destinationBlock = doorPos;
                         System.out.println("Found new door");
-                        System.out.println("To delivery: " + collectedFood);
+                        System.out.println("To delivery: " + inventory.getInventoryItems());
                     } else {
                         doorFinder.clearVisitedDoors();
                         doorPos = doorFinder.findNearestDoor(entity);
                         if (doorPos != null) {
                             this.destinationBlock = doorPos;
                             System.out.println("Found new door after visited doors reset");
-                            System.out.println("To delivery: " + collectedFood);
+                            System.out.println("To delivery: " + inventory.getInventoryItems());
                         }
                     }
                 } else {
@@ -106,7 +105,7 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
         }
 
         if (this.getIsAboveDestination() && this.currentTask == 0) {
-            farmlandRowScanner.defineRowCoordinates(this.entity.world, this.destinationBlock);
+            rowScanner.defineRowCoordinates(this.entity.world, this.destinationBlock);
             this.currentTask = 1;
             this.runDelay = 1;
         }
@@ -129,14 +128,14 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
 
                 for (EntityItem item : items) {
                     if (item.getItem().getItem() instanceof ItemFood || item.getItem().getItem().equals(Items.WHEAT)) {
-                        collectedFood.add(item.getItem());
+                        inventory.add(item.getItem());
                         item.setDead();
                     }
                 }
             }
 
-            for (int xi = farmlandRowScanner.getRowStartX(); xi <= farmlandRowScanner.getRowEndX() && !foundCrop; xi++) {
-                for (int zi = farmlandRowScanner.getRowStartZ(); zi <= farmlandRowScanner.getRowEndZ(); zi++) {
+            for (int xi = rowScanner.getRowStartX(); xi <= rowScanner.getRowEndX() && !foundCrop; xi++) {
+                for (int zi = rowScanner.getRowStartZ(); zi <= rowScanner.getRowEndZ(); zi++) {
                     if (xi == x && zi == z) continue;
 
                     checkPos.setPos(xi, y, zi);
@@ -181,8 +180,8 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
             int z = pos.getZ();
 
             if (block instanceof BlockCrops && ((BlockCrops)block).isMaxAge(iblockstate)) {
-                if (x <= farmlandRowScanner.getRowEndX() && x >= farmlandRowScanner.getRowStartX()
-                        && z <= farmlandRowScanner.getRowEndZ() && z >= farmlandRowScanner.getRowStartZ()) {
+                if (x <= rowScanner.getRowEndX() && x >= rowScanner.getRowStartX()
+                        && z <= rowScanner.getRowEndZ() && z >= rowScanner.getRowStartZ()) {
                     this.currentTask = 1;
                     return true;
                 } else {
