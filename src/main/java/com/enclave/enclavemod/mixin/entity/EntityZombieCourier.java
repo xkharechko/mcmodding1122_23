@@ -1,8 +1,7 @@
 package com.enclave.enclavemod.mixin.entity;
 
-import com.enclave.enclavemod.entity.ai.EntityAICourierHarvestFarmland;
+import com.enclave.enclavemod.entity.ai.courier.EntityAICourierHarvestFarmland;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntityZombie;
@@ -11,9 +10,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(EntityZombie.class)
 public abstract class EntityZombieCourier extends EntityMob {
