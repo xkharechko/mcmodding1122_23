@@ -1,6 +1,14 @@
 package com.enclave.enclavemod.mixin.entity;
 
+import com.enclave.enclavemod.entity.ai.courier.EntityAICourierDeliver;
+import com.enclave.enclavemod.entity.ai.courier.EntityAICourierHarvest;
 import com.enclave.enclavemod.entity.ai.courier.EntityAICourierHarvestFarmland;
+import com.enclave.enclavemod.entity.ai.courier.EntityAICourierMoveToRow;
+import com.enclave.enclavemod.entity.ai.courier.inventory.CourierInventory;
+import com.enclave.enclavemod.entity.ai.courier.state.CourierState;
+import com.enclave.enclavemod.entity.ai.courier.state.StateMachine;
+import com.enclave.enclavemod.entity.ai.courier.world.DoorFinder;
+import com.enclave.enclavemod.entity.ai.courier.world.FarmlandRowScanner;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.monster.EntityMob;
@@ -13,6 +21,10 @@ import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(EntityZombie.class)
 public abstract class EntityZombieCourier extends EntityMob {
+    private StateMachine stateMachine;
+    private FarmlandRowScanner rowScanner;
+    private CourierInventory inventory;
+    private DoorFinder doorFinder;
 
     public EntityZombieCourier(World worldIn) {
         super(worldIn);
@@ -20,6 +32,11 @@ public abstract class EntityZombieCourier extends EntityMob {
 
     @Overwrite
     protected void initEntityAI() {
+        this.stateMachine = new StateMachine();
+        this.rowScanner = new FarmlandRowScanner();
+        this.inventory = new CourierInventory();
+        this.doorFinder = new DoorFinder();
+
         this.tasks.addTask(0, new EntityAISwimming(this));
         this.tasks.addTask(3, new EntityAIOpenDoor(this, false));
         this.tasks.addTask(5, new EntityAIMoveTowardsRestriction(this, 1.0D));
@@ -31,7 +48,9 @@ public abstract class EntityZombieCourier extends EntityMob {
 
     @Overwrite
     protected void applyEntityAI() {
-        this.tasks.addTask(4, new EntityAICourierHarvestFarmland(this, 1.2D));
+        this.tasks.addTask(4, new EntityAICourierMoveToRow(this, 1.2D, stateMachine, rowScanner));
+        this.tasks.addTask(4, new EntityAICourierHarvest(this, 1.2D, stateMachine, rowScanner, inventory));
+        this.tasks.addTask(4, new EntityAICourierDeliver(this, 1.2D, stateMachine, doorFinder, inventory));
         this.tasks.addTask(6, new EntityAIMoveThroughVillage(this, 1.0D, false));
     }
 
@@ -47,7 +66,7 @@ public abstract class EntityZombieCourier extends EntityMob {
     }
 
     @Overwrite
-    public void onLivingUpdate() {
-        super.onLivingUpdate();
+    protected boolean shouldBurnInDay() {
+        return false;
     }
 }
