@@ -1,6 +1,7 @@
 package com.enclave.enclavemod.entity.ai.courier;
 
 import com.enclave.enclavemod.entity.ai.courier.world.DoorFinder;
+import com.enclave.enclavemod.entity.ai.courier.world.FarmlandRowScanner;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityCreature;
@@ -20,10 +21,10 @@ import java.util.List;
 public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
     private final EntityCreature entity;
     private int currentTask = -1; // 0 => move to row, 1 => harvest all food in row, 2 => delivery food, -1 => none
-    private int minX, minZ, maxX, maxZ;
     private boolean isHarvestEnded = false;
     private ArrayList<ItemStack> collectedFood = new ArrayList<>();
     private DoorFinder doorFinder = new DoorFinder();
+    private FarmlandRowScanner farmlandRowScanner = new FarmlandRowScanner();
 
     public EntityAICourierHarvestFarmland(EntityCreature entity, double speedIn) {
         super(entity, speedIn, 16);
@@ -105,7 +106,7 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
         }
 
         if (this.getIsAboveDestination() && this.currentTask == 0) {
-            defineRowCoordinates(this.entity.world, this.destinationBlock);
+            farmlandRowScanner.defineRowCoordinates(this.entity.world, this.destinationBlock);
             this.currentTask = 1;
             this.runDelay = 1;
         }
@@ -134,8 +135,8 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
                 }
             }
 
-            for (int xi = this.minX; xi <= this.maxX && !foundCrop; xi++) {
-                for (int zi = this.minZ; zi <= this.maxZ; zi++) {
+            for (int xi = farmlandRowScanner.getRowStartX(); xi <= farmlandRowScanner.getRowEndX() && !foundCrop; xi++) {
+                for (int zi = farmlandRowScanner.getRowStartZ(); zi <= farmlandRowScanner.getRowEndZ(); zi++) {
                     if (xi == x && zi == z) continue;
 
                     checkPos.setPos(xi, y, zi);
@@ -180,7 +181,8 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
             int z = pos.getZ();
 
             if (block instanceof BlockCrops && ((BlockCrops)block).isMaxAge(iblockstate)) {
-                if (x <= this.maxX && x >= this.minX && z <= this.maxZ && z >= this.minZ) {
+                if (x <= farmlandRowScanner.getRowEndX() && x >= farmlandRowScanner.getRowStartX()
+                        && z <= farmlandRowScanner.getRowEndZ() && z >= farmlandRowScanner.getRowStartZ()) {
                     this.currentTask = 1;
                     return true;
                 } else {
@@ -190,53 +192,5 @@ public class EntityAICourierHarvestFarmland extends EntityAIMoveToBlock {
         }
 
         return false;
-    }
-
-    private boolean isRow(World world, int x, int y, int z) {
-        Block block = world.getBlockState(new BlockPos(x, y, z)).getBlock();
-        return (block instanceof BlockFarmland) || (block instanceof BlockDirt);
-    }
-
-    private void defineRowCoordinates(World world, BlockPos pos) {
-        int x = pos.getX();
-        int y = pos.getY();
-        int z = pos.getZ();
-
-        this.minX = this.maxX = x;
-        this.minZ = this.maxZ = z;
-
-        for (int i = z - 1; i >= z - 10; i--) {
-            if (isRow(world, x, y, i)) {
-                this.minZ = i;
-            } else {
-                break;
-            }
-        }
-
-        for (int i = z + 1; i <= z + 10; i++) {
-            if (isRow(world, x, y, i)) {
-                this.maxZ = i;
-            } else {
-                break;
-            }
-        }
-
-        for (int i = x - 1; i >= x - 10; i--) {
-            if (isRow(world, i, y, z)) {
-                this.minX = i;
-            } else {
-                break;
-            }
-        }
-
-        for (int i = x + 1; i <= x + 10; i++) {
-            if (isRow(world, i, y, z)) {
-                this.maxX = i;
-            } else {
-                break;
-            }
-        }
-
-        System.out.println("minX: " + minX + ", maxX: " + maxX + ", minZ: " + minZ + ", maxZ: " + maxZ);
     }
 }
