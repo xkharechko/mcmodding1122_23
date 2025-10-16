@@ -48,9 +48,9 @@ public abstract class EntityZombieCourier extends EntityMob {
 
     @Overwrite
     protected void applyEntityAI() {
-        this.tasks.addTask(4, new EntityAICourierMoveToRow(this, 1.2D, stateMachine, rowScanner));
+        this.tasks.addTask(3, new EntityAICourierMoveToRow(this, 1.2D, stateMachine, rowScanner));
         this.tasks.addTask(4, new EntityAICourierHarvest(this, 1.2D, stateMachine, rowScanner, inventory));
-        this.tasks.addTask(4, new EntityAICourierDeliver(this, 1.2D, stateMachine, doorFinder, inventory));
+        this.tasks.addTask(5, new EntityAICourierDeliver(this, 1.2D, stateMachine, doorFinder, inventory));
         this.tasks.addTask(6, new EntityAIMoveThroughVillage(this, 1.0D, false));
     }
 

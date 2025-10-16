@@ -39,7 +39,12 @@ public class EntityAICourierHarvest extends EntityAIMoveToBlock {
 
     public boolean shouldExecute() {
         if (stateMachine.getCourierState() == HARVEST) {
-            return super.shouldExecute();
+            if (!super.shouldExecute()) {
+                this.runDelay = 0;
+                return false;
+            } else {
+                return true;
+            }
         } else {
             return false;
         }

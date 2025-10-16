@@ -36,7 +36,7 @@ public class EntityAICourierMoveToRow extends EntityAIMoveToBlock {
     }
 
     public boolean shouldExecute() {
-        if (stateMachine.getCourierState() == IDLE) {
+        if (stateMachine.getCourierState() == IDLE || stateMachine.getCourierState() == MOVE_TO_ROW) {
             stateMachine.finishIdleState();
             return super.shouldExecute();
         } else {
