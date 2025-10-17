@@ -2,10 +2,8 @@ package com.enclave.enclavemod.mixin.entity;
 
 import com.enclave.enclavemod.entity.ai.courier.EntityAICourierDeliver;
 import com.enclave.enclavemod.entity.ai.courier.EntityAICourierHarvest;
-import com.enclave.enclavemod.entity.ai.courier.EntityAICourierHarvestFarmland;
 import com.enclave.enclavemod.entity.ai.courier.EntityAICourierMoveToRow;
 import com.enclave.enclavemod.entity.ai.courier.inventory.CourierInventory;
-import com.enclave.enclavemod.entity.ai.courier.state.CourierState;
 import com.enclave.enclavemod.entity.ai.courier.state.StateMachine;
 import com.enclave.enclavemod.entity.ai.courier.world.DoorFinder;
 import com.enclave.enclavemod.entity.ai.courier.world.FarmlandRowScanner;

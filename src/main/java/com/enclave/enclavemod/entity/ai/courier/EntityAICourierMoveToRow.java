@@ -1,25 +1,15 @@
 package com.enclave.enclavemod.entity.ai.courier;
 
-import com.enclave.enclavemod.entity.ai.courier.inventory.CourierInventory;
-import com.enclave.enclavemod.entity.ai.courier.state.CourierState;
 import com.enclave.enclavemod.entity.ai.courier.state.StateMachine;
-import com.enclave.enclavemod.entity.ai.courier.world.DoorFinder;
 import com.enclave.enclavemod.entity.ai.courier.world.FarmlandRowScanner;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
-import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIMoveToBlock;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemFood;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.util.List;
 
 import static com.enclave.enclavemod.entity.ai.courier.state.CourierState.*;
 
@@ -36,8 +26,8 @@ public class EntityAICourierMoveToRow extends EntityAIMoveToBlock {
     }
 
     public boolean shouldExecute() {
-        if (stateMachine.getCourierState() == IDLE || stateMachine.getCourierState() == MOVE_TO_ROW) {
-            stateMachine.finishIdleState();
+        if (stateMachine.getState() == IDLE || stateMachine.getState() == MOVE_TO_ROW) {
+            stateMachine.setState(MOVE_TO_ROW);
             return super.shouldExecute();
         } else {
             return false;
@@ -45,16 +35,16 @@ public class EntityAICourierMoveToRow extends EntityAIMoveToBlock {
     }
 
     public boolean shouldContinueExecuting() {
-        return stateMachine.getCourierState() == MOVE_TO_ROW && super.shouldContinueExecuting();
+        return stateMachine.getState() == MOVE_TO_ROW && super.shouldContinueExecuting();
     }
 
     public void updateTask() {
         super.updateTask();
         this.entity.getLookHelper().setLookPosition((double)this.destinationBlock.getX() + 0.5D, (double)(this.destinationBlock.getY() + 1), (double)this.destinationBlock.getZ() + 0.5D, 10.0F, (float)this.entity.getVerticalFaceSpeed());
 
-        if (this.getIsAboveDestination() && stateMachine.getCourierState() == MOVE_TO_ROW) {
+        if (this.getIsAboveDestination() && stateMachine.getState() == MOVE_TO_ROW) {
             rowScanner.defineRowCoordinates(this.entity.world, this.destinationBlock);
-            stateMachine.finishMoveState();
+            stateMachine.setState(HARVEST);
         }
     }
 
@@ -62,7 +52,7 @@ public class EntityAICourierMoveToRow extends EntityAIMoveToBlock {
     {
         Block block = worldIn.getBlockState(pos).getBlock();
 
-        if (block == Blocks.FARMLAND && stateMachine.getCourierState() == MOVE_TO_ROW) {
+        if (block == Blocks.FARMLAND && stateMachine.getState() == MOVE_TO_ROW) {
             pos = pos.up();
             IBlockState iblockstate = worldIn.getBlockState(pos);
             block = iblockstate.getBlock();

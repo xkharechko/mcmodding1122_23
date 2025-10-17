@@ -1,25 +1,16 @@
 package com.enclave.enclavemod.entity.ai.courier;
 
 import com.enclave.enclavemod.entity.ai.courier.inventory.CourierInventory;
-import com.enclave.enclavemod.entity.ai.courier.state.CourierState;
 import com.enclave.enclavemod.entity.ai.courier.state.StateMachine;
 import com.enclave.enclavemod.entity.ai.courier.world.DoorFinder;
-import com.enclave.enclavemod.entity.ai.courier.world.FarmlandRowScanner;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.ai.EntityAIMoveToBlock;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.util.List;
 
 import static com.enclave.enclavemod.entity.ai.courier.state.CourierState.*;
 
@@ -38,13 +29,13 @@ public class EntityAICourierDeliver extends EntityAIMoveToBlock {
     }
 
     public boolean shouldExecute() {
-        if (stateMachine.getCourierState() == DELIVER) {
+        if (stateMachine.getState() == DELIVER) {
             BlockPos doorPos = doorFinder.findNearestDoor(entity);
             if (doorPos != null) {
                 this.destinationBlock = doorPos;
                 return true;
             } else {
-                stateMachine.finishDeliverState();
+                stateMachine.setState(IDLE);
                 return false;
             }
         } else {
@@ -53,14 +44,14 @@ public class EntityAICourierDeliver extends EntityAIMoveToBlock {
     }
 
     public boolean shouldContinueExecuting() {
-        return stateMachine.getCourierState() == DELIVER && super.shouldContinueExecuting();
+        return stateMachine.getState() == DELIVER && super.shouldContinueExecuting();
     }
 
     public void updateTask() {
         super.updateTask();
         this.entity.getLookHelper().setLookPosition((double)this.destinationBlock.getX() + 0.5D, (double)(this.destinationBlock.getY() + 1), (double)this.destinationBlock.getZ() + 0.5D, 10.0F, (float)this.entity.getVerticalFaceSpeed());
 
-        if (doorFinder.isNearDoor(this.destinationBlock, entity) && stateMachine.getCourierState() == DELIVER) {
+        if (doorFinder.isNearDoor(this.destinationBlock, entity) && stateMachine.getState() == DELIVER) {
             World world = this.entity.world;
             BlockPos blockpos = this.destinationBlock;
             IBlockState iblockstate = world.getBlockState(blockpos);
@@ -91,13 +82,13 @@ public class EntityAICourierDeliver extends EntityAIMoveToBlock {
                 } else {
                     doorFinder.clearVisitedDoors();
                     System.out.println("Finished delivery");
-                    stateMachine.finishDeliverState();
+                    stateMachine.setState(IDLE);
                 }
                 this.runDelay = 1;
             } else {
                 doorFinder.clearVisitedDoors();
                 System.out.println("Finished delivery");
-                stateMachine.finishDeliverState();
+                stateMachine.setState(IDLE);
             }
         }
     }
